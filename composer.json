@@ -1,0 +1,20 @@
+{
+  "name": "flxxyz/directory-lister",
+  "description": "PHP实现目录列表",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "flxxyz",
+      "email": "i@mdzz.name"
+    }
+  ],
+  "require": {
+    "flxxyz/col": "*",
+    "vrana/notorm": "dev-master"
+  },
+  "autoload": {
+    "psr-4": {
+      "DirectoryLister\\": "app/"
+    }
+  }
+}
