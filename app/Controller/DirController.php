@@ -31,25 +31,25 @@ class DirController extends Controller
     public function sub()
     {
         $args = func_get_args();
-        var_dump($args);
-        exit(0);
         $child = array_pop($args);
-        $name = array_pop($args);
         $path = "{$this->path}/{$child}";
 
         if (is_file($path)) {
+            $name = pathinfo($path);
+            $basename = $name['basename'];
+
             header("Content-type: application/octet-stream");
             $ua = $_SERVER["HTTP_USER_AGENT"];
-            $encoded_filename = rawurlencode($name);
+            $encoded_filename = rawurlencode($basename);
             if (preg_match("/MSIE/", $ua)) {
                 header('Content-Disposition: attachment; filename="' . $encoded_filename . '"');
             } else if (preg_match("/Firefox/", $ua)) {
-                header("Content-Disposition: attachment; filename*=\"utf8''" . $name . '"');
+                header("Content-Disposition: attachment; filename*=\"utf8''" . $basename . '"');
             } else {
-                header('Content-Disposition: attachment; filename="' . $good_name . '"');
+                header('Content-Disposition: attachment; filename="' . $basename . '"');
             }
 
-            header("Content-Length: ". filesize($path));
+            header("Content-Length: " . filesize($path));
             readfile($path);
             exit(0);
         }

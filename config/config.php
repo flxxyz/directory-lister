@@ -8,7 +8,7 @@ return [
     'theme'       => 'default',
     'date_format' => 'Y-m-d H:i:s',
     'root_path'   => '/',
-    'data_path'   => 'C:\Users\flxxy\Desktop\新建文件夹',
+    'data_path'   => '/data/www/wwwroot/directory-lister',
     'ignore_list' => [
         '.',
         '.htaccess',
