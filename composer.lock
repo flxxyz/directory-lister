@@ -8,16 +8,16 @@
     "packages": [
         {
             "name": "flxxyz/col",
-            "version": "0.0.9",
+            "version": "0.1.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/flxxyz/Col.git",
-                "reference": "aab2e1accc47b946a8e75dde430aa6f98520e38d"
+                "reference": "370247b70a47b8a4b1093f2c7a4dcd405b38fc49"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/flxxyz/Col/zipball/aab2e1accc47b946a8e75dde430aa6f98520e38d",
-                "reference": "aab2e1accc47b946a8e75dde430aa6f98520e38d",
+                "url": "https://api.github.com/repos/flxxyz/Col/zipball/370247b70a47b8a4b1093f2c7a4dcd405b38fc49",
+                "reference": "370247b70a47b8a4b1093f2c7a4dcd405b38fc49",
                 "shasum": ""
             },
             "require": {
@@ -51,7 +51,7 @@
                 "php",
                 "简单框架"
             ],
-            "time": "2018-02-22T04:50:58+00:00"
+            "time": "2018-03-01T03:29:33+00:00"
         },
         {
             "name": "php-curl-class/php-curl-class",

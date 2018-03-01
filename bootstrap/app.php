@@ -34,7 +34,9 @@ require_once BASE_DIR . 'vendor/autoload.php';
 $core = Col\Core::instance();
 $core->request = Col\Request::instance();
 $core->route = Col\Route::instance($core->request);
-$core->session = Col\Session::make(config('session'));
+if(!SESSION_OPEN) {
+    $core->session = Col\Session::make(config('session'));
+}
 $route = $core->route;
 
 require_once BASE_DIR . 'route/web.php';

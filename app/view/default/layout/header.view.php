@@ -10,7 +10,8 @@
     <meta name="description" content="<?php _e(isset($description) ? $description : $_CONFIG['description']) ?>" />
     <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
     <?php if(http_response_code() == 200): ?>
-    <link href="https://cdn.bootcss.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <link href="/css/fontawesome-all.min.css" rel="stylesheet">
+    <link href="/css/bulma.css" rel="stylesheet">
     <?php endif; ?>
 </head>
 <body>

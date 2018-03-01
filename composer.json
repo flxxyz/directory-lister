@@ -1,6 +1,9 @@
 {
   "name": "flxxyz/directory-lister",
+  "keywords": ["directory-lister", "folder-file-lister", "file-lister", "directory", "theme-support", "col", "simple"],
   "description": "PHP实现目录列表",
+  "homepage": "https://github.com/flxxyz/directory-lister",
+  "version": "0.0.1",
   "license": "MIT",
   "authors": [
     {
