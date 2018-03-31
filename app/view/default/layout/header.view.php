@@ -10,8 +10,8 @@
     <meta name="description" content="<?php _e(isset($description) ? $description : $_CONFIG['description']) ?>" />
     <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
     <?php if(http_response_code() == 200): ?>
-    <link href="/css/fontawesome-all.min.css" rel="stylesheet">
-    <link href="/css/bulma.css" rel="stylesheet">
+        <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.9/css/all.css" integrity="sha384-5SOiIsAziJl6AWe0HWRKTXlfcSHKmYV4RBF18PPJ173Kzn7jzMyFuTtk8JA7QQG1" crossorigin="anonymous">
+        <link href="https://cdn.bootcss.com/bulma/0.6.2/css/bulma.min.css" rel="stylesheet">
     <?php endif; ?>
 </head>
 <body>

@@ -1,10 +1,10 @@
 <?php
 /**
  * 程序的主要配置
- * @version 0.0.1
+ * @version 0.0.2
  */
 return [
-    'version'     => '0.0.1',            // 版本
+    'version'     => '0.0.2',            // 版本
     'title'       => 'DirectoryLister',  // 站点标题
     'keyword'     => 'DirectoryLister',  // 站点关键字
     'description' => 'DirectoryLister',  // 站点描述

@@ -5,7 +5,7 @@ namespace DirectoryLister\Controller;
 /**
  * Class DirController
  * @package DirectoryLister\Controller
- * @version 0.0.1
+ * @version 0.0.2
  */
 class DirController extends Controller
 {
@@ -147,6 +147,20 @@ class DirController extends Controller
             }
         }
         unset($root_dir, $value, $dir, $is_dir, $path, $time, $size);  // 清理占用
+
+        $dirs = [];
+        $files = [];
+        foreach ($result as $item) {
+            if ($item['is_dir']) {
+                $dirs[$item['name']] = $item;
+            } else {
+                $files[$item['name']] = $item;
+            }
+        }
+        ksort($dirs, SORT_NATURAL | SORT_FLAG_CASE);
+        ksort($files, SORT_NATURAL | SORT_FLAG_CASE);
+        $result = array_merge($dirs, $files);
+        unset($dirs, $files, $item);
 
         return $result;
     }
