@@ -1,5 +1,4 @@
 <?php
-use DirectoryLister\Controller\DirController;
+use \Col\Route;
 
-$route->get('/', [DirController::class, 'index']);
-$route->get('/*', [DirController::class, 'sub']);
+Route::get('/', 'DirController@index');

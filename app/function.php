@@ -5,42 +5,36 @@ if (!function_exists('v')) {
      * 构造本程序的主题函数
      * @param string $dir
      * @param array  $data
-     * @param int    $statusCode
      */
-    function v($dir = '', $data = [], $statusCode = 200)
+    function v($dir = '', $data = [])
     {
         $dir = rtrim($dir, '/');
-        $config = config('config');
-        $theme = isset($config['theme']) ? $config['theme'] : 'default';
-        view("{$theme}/{$dir}", $data, $statusCode);
+        $theme = \Col\Lib\Config::get('other', 'theme') ?? 'default';
+        view("{$theme}/{$dir}", $data);
     }
 }
 
-if (!function_exists('hex_conver')) {
-    /**
-     * 格式化文件大小输出符合的单位
-     * @param int $bit
-     * @return string
-     */
-    function hex_conver($bit = 0)
+if (!function_exists('_e')) {
+    function _e($var = '')
     {
-        if($bit == 0) {
-            return '0B';
+        if (is_object($var) || is_array($var)) {
+            var_dump($var);
+        } elseif (is_null($var)) {
+            var_dump(null);
+        } else {
+            echo $var;
         }
+    }
+}
 
-        $bytes = [
-            'TB' => pow(1024, 4),
-            'GB' => pow(1024, 3),
-            'MB' => pow(1024, 2),
-            'KB' => 1024,
-            'B'  => 1,
-        ];
-
-        foreach ($bytes as $name => $value) {
-            $n = intval($bit) / $value;
-            if (0 != $c = floor($n)) {
-                return round($n, 2) . $name;
-            }
-        }
+if (!function_exists('run_time')) {
+    function run_time($precision = 4)
+    {
+        $time =
+            round(
+                microtime(true) - $_SERVER['REQUEST_TIME_FLOAT'],
+                $precision
+            ) * 1000;
+        return $time.'ms';
     }
 }

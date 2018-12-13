@@ -1,44 +1,21 @@
 <?php
 
-if (!APP_DEBUG)
-    error_reporting(0);
+//引入自动加载文件
+require_once __DIR__ . '/../vendor/autoload.php';
 
-register_shutdown_function("fatal_handler");
-set_error_handler("error_handler");
+use Col\{
+    Route,
+    Lib\Config
+};
 
-define('E_FATAL', E_ERROR | E_USER_ERROR | E_CORE_ERROR | E_COMPILE_ERROR | E_RECOVERABLE_ERROR | E_PARSE);
+//设置脚本时区
+ini_set('date.timezone', Config::get('app', 'timezone'));
 
-function fatal_handler()
-{
-    $error = error_get_last();
-    if ($error && ($error["type"] === ($error["type"] & E_FATAL))) {
-        $errno = $error["type"];
-        $errfile = $error["file"];
-        $errline = $error["line"];
-        $errstr = $error["message"];
-        error_handler($errno, $errstr, $errfile, $errline);
-    }
-}
+//实例路由
+Route::make(\request());
 
-function error_handler($errno, $errstr, $errfile, $errline)
-{
-    $error = "{$errstr}";
-    $error .= "<br>file: <strong>{$errfile}</strong>";
-    $error .= "<br>line: <strong>{$errline}</strong>";
-    $str = "error_code: <strong>{$errno}</strong><br>" . $error;
-    exit($error);
-}
-
-require_once BASE_DIR . 'vendor/autoload.php';
-
-$core = Col\Core::instance();
-$core->request = Col\Request::instance();
-$core->route = Col\Route::instance($core->request);
-if(!SESSION_OPEN) {
-    $core->session = Col\Session::make(config('session'));
-}
-$route = $core->route;
-
+//引入路由列表
 require_once BASE_DIR . 'route/web.php';
 
-$route->end();
+//路由完成
+Route::end();

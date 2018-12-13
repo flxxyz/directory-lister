@@ -1,5 +1,5 @@
 <footer class="footer">
-    &copy; <?php _e(date('Y')) ?>, runtime:<?php _e($time) ?>
+    &copy; <?=date('Y')?>, 运行时间:<?=run_time()?>
 </footer>
 <script>
     /** 统计代码 **/

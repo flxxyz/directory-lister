@@ -39,4 +39,4 @@
     </div>
 </div>
 
-<?php v('layout/footer', ['time'=>$time])?>
+<?php v('layout/footer')?>

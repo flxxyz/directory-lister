@@ -1,11 +1,15 @@
 <?php
 
-namespace DirectoryLister\Controller;
+namespace App\Controllers;
+
+use Col\Controller;
+use Col\Lib\Config;
+use Col\Request;
 
 /**
  * Class DirController
  * @package DirectoryLister\Controller
- * @version 0.0.2
+ * @version 0.0.3
  */
 class DirController extends Controller
 {
@@ -19,13 +23,12 @@ class DirController extends Controller
             exit($str);
         }
 
-        $this->start_time = microtime(true);
-        $this->config = config('config');
-        $this->file_type = config('filetype');
-        $this->ignore = $this->config['ignore_list'];
-        $this->date_format = $this->config['date_format'];
-        $this->root = $this->config['root_path'];
-        $this->path = $this->config['data_path'];
+        $this->file_type = Config::get('filetype');
+        $this->storage = Config::get('other', 'storage');
+        $this->ignore = Config::get('other', 'ignore_list');
+        $this->date_format = Config::get('other', 'date_format');
+        $this->root = Config::get('other', 'root_path');
+        $this->path = Config::get('other', 'data_path');
 
         if (!is_dir($this->path)) {
             $str = '<h3>设置的目录不存在</h3>';
@@ -34,23 +37,39 @@ class DirController extends Controller
         }
 
         $this->ignore[] = '.';  // 永远忽略当前目录
-
-        header("Pragma: no-cache");
-        header("Cache-Control: no-cache");
     }
 
-    public function index()
+    public function index(Request $request)
     {
-        $path = $this->path;
+        $path = $request->get('path', null);
         $this->ignore[] = '..';  // 首页忽略上级目录
-        $root_dir = scandir($path);
-        $result = $this->dir($path, $root_dir);
+
+        $result = [];
+        switch ($this->storage) {
+            case 'local':
+                $path = $this->path . $path;
+                $result = $this->local($path);
+                break;
+            case 'aliyun_oss':
+                $result = $this->oss($path);
+        }
+        echo '<pre>';
+        var_dump($result);exit();
 
         v('index', [
             'root' => $this->root,
             'data' => $result,
-            'time' => $this->run_time(),
         ]);
+    }
+
+    public function local($path)
+    {
+        return $this->dir($path, scandir($path));
+    }
+
+    public function oss($path)
+    {
+        return oss()->getList($path);
     }
 
     public function sub()
@@ -125,7 +144,7 @@ class DirController extends Controller
                     $is_dir = true;  // 确定是目录
                 } else if (is_file($path)) {
                     $ext = $this->file_type['blank'];
-                    $size = hex_conver(filesize($path));  // 取文件大小
+                    $size = file_unit_conver(filesize($path));  // 取文件大小
                     //$md5_file = md5_file($path);
                     //$sha1_file = sha1_file($path);
 
@@ -163,14 +182,5 @@ class DirController extends Controller
         unset($dirs, $files, $item);
 
         return $result;
-    }
-
-    /**
-     * 获取代码运行时长
-     * @return string
-     */
-    private function run_time()
-    {
-        return round((microtime(true) - $this->start_time) * 1000, 2) . 'ms';
     }
 }
