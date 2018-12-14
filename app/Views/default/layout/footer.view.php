@@ -1,5 +1,5 @@
 <footer class="footer">
-    &copy; <?=date('Y')?>, 运行时间:<?=run_time()?>
+    &copy; <?=date('Y')?> 存储服务<b><?=$storage?></b>, 运行时间:<b><?=run_time()?></b>
 </footer>
 <script>
     /** 统计代码 **/

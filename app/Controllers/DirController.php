@@ -2,7 +2,6 @@
 
 namespace App\Controllers;
 
-use Col\Controller;
 use Col\Lib\Config;
 use Col\Request;
 
@@ -11,11 +10,23 @@ use Col\Request;
  * @package DirectoryLister\Controller
  * @version 0.0.3
  */
-class DirController extends Controller
+class DirController extends BaseController
 {
+    private $file_type = [];
+
+    private $storage = 'local';
+
+    private $ignore = [];
+
+    private $date_format = 'Y-m-d H:i:s';
+
+    private $root = '/';
+
+    private $path = '/';
+
     public function __construct()
     {
-        if (!function_exists('scandir')) {
+        if ( !function_exists('scandir')) {
             $str = '<h3>关键函数被禁用</h3>';
             $str .= '打开php.ini, 查找<strong>disable_functions</strong>  ';
             $str .= '(<a href="https://blog.flxxyz.com/technology/2018/find-php-ini.html" target="_blank">不知道查找php.ini看这</a>), ';
@@ -30,7 +41,7 @@ class DirController extends Controller
         $this->root = Config::get('other', 'root_path');
         $this->path = Config::get('other', 'data_path');
 
-        if (!is_dir($this->path)) {
+        if ( !is_dir($this->path)) {
             $str = '<h3>设置的目录不存在</h3>';
             $str .= '请在 <code>站点目录/config/config.php</code> 中, 找到 <strong>data_path</strong> 选项修改为可以显示并存在的目录<br>';
             exit($str);
@@ -42,46 +53,168 @@ class DirController extends Controller
     public function index(Request $request)
     {
         $path = $request->get('path', null);
-        $this->ignore[] = '..';  // 首页忽略上级目录
+        $ajax = $request->get('ajax', null);
+        $down = $request->get('down', null);
+        $name = $request->get('name', null);
+        if (is_null($path) || $path == '') {
+            $this->ignore[] = '..';  // 首页忽略上级目录
+        }
 
         $result = [];
         switch ($this->storage) {
             case 'local':
-                $path = $this->path . $path;
-                $result = $this->local($path);
+                $storage = '本地';
+                $result = $this->local($path, $down, $name);
                 break;
             case 'aliyun_oss':
+                $storage = '阿里云OSS';
                 $result = $this->oss($path);
+                break;
         }
-        echo '<pre>';
-        var_dump($result);exit();
+//        echo '<pre>';
+//        var_dump($result);exit();
 
-        v('index', [
-            'root' => $this->root,
-            'data' => $result,
-        ]);
+        $data = [
+            'root'    => $this->root . $path,
+            'storage' => $storage,
+            'data'    => $result,
+        ];
+
+        if ( !is_null($ajax)) {
+            if (in_array($ajax, ['json'])) {
+                return $this->ajax('success', $data, $ajax);
+            }
+
+            return $this->ajax('not found method [xml]', [], 'json', 400);
+        } else {
+            v('index', $data);
+        }
     }
 
-    public function local($path)
+    /**
+     * 本地文件
+     * @param $curr_path
+     * @param $down
+     * @param $name
+     * @return array|void
+     */
+    public function local($curr_path, $down, $name)
     {
-        return $this->dir($path, scandir($path));
+        $path = $this->path . '/' . $curr_path;
+
+        if ($down === '1') {
+            return $this->download($path, $name);
+        }
+
+        $result = scandir($path);
+        $dirList = [];
+        $fileList = [];
+
+        foreach ($result as $value) {
+            if (!in_array($value, $this->ignore)) {
+                $filename = $path . '/' . $value;
+                $a = explode('/', $curr_path);
+
+                if (is_dir($filename)) {
+                    if ($value === '..') {
+                        array_pop($a);
+
+                        //二级目录返回一级目录
+                        if (count($a) <= 1) {
+                            $url = '/';
+                        } else {
+                            $url = '?path=' . join('/', $a);
+                        }
+                    } else {
+                        $url = '?path=' . join('/', $a) . '/' . $value;
+                    }
+
+                    $dirList[] = [
+                        'type' => 'dir',
+                        'name' => $value,
+                        'size' => null,
+                        'time' => null,
+                        'url' => $url,
+                    ];
+                } else {
+                    $fileList[] = [
+                        'type' => 'file',
+                        'name' => $value,
+                        'size' => filesize($filename),
+                        'time' => filectime($filename),
+                        'url' => '?path=' . join('/', $a) . '&name=' . $value . '&down=1',
+                    ];
+                }
+            }
+        }
+
+        return $this->handleFileList(array_merge($dirList, $fileList));
     }
 
-    public function oss($path)
+    /**
+     * 阿里云OSS文件
+     * @param $curr_path
+     * @return array
+     * @throws \OSS\Core\OssException
+     */
+    public function oss($curr_path)
     {
-        return oss()->getList($path);
+        $result = oss()->getList($curr_path);
+
+        return $this->handleFileList($result);
     }
 
-    public function sub()
+    /**
+     * 统一处理文件列表
+     * @param $result
+     * @return array
+     */
+    public function handleFileList($result)
     {
-        $args = func_get_args();
-        $child = array_pop($args);
-        $path = "{$this->path}/{$child}";
+        $temp = [];
 
-        // 文件存在直接下载
-        if (is_file($path)) {
-            $name = pathinfo($path);
-            $basename = $name['basename'];
+        foreach ($result as $file) {
+            if (!in_array($file['name'], $this->ignore)) {
+                $ext = 'fa-folder';
+                $is_dir = false;
+
+                if ($file['type'] === 'dir') {
+                    $is_dir = true;
+                } else {
+                    $file['size'] = file_unit_conver($file['size']);
+                    $ext = $this->file_type['blank'];
+
+                    $extension = pathinfo($file['name'], PATHINFO_EXTENSION);
+                    if (array_key_exists($extension, $this->file_type)) {
+                        $ext = $this->file_type[$extension];
+                    }
+                }
+
+                $temp[] = [
+                    'is_dir' => $is_dir,
+                    'size'   => $file['size'] ?? '-',
+                    'time'   => $is_dir ? '' : date($this->date_format, $file['time']),  // 按定义格式输出时间
+                    'name'   => $is_dir ? str_replace('/', '', $file['name']) : $file['name'],
+                    'ext'    => $ext,
+                    'url'    => $file['url'],
+                ];
+            }
+        }
+
+        return $temp;
+    }
+
+    /**
+     * 本地文件下载
+     * @param $curr_path
+     * @param $name
+     */
+    public function download($path, $name)
+    {
+        $filename = $path . '/' . $name;
+        if (is_file($filename)) {
+            $pathinfo = pathinfo($filename);
+            $basename = $pathinfo['basename'];
 
             set_time_limit(0);
             ini_set('memory_limit', '768M');
@@ -101,86 +234,33 @@ class DirController extends Controller
             header('Expires: 0');
             header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
             header('Pragma: public');
-            header("Content-Length: " . filesize($path));
+            header("Content-Length: " . filesize($filename));
             ob_clean();
             flush();
-            readfile($path);
+            readfile($filename);
             exit(0);
         }
 
-        // 目录不存在，返回404
-        if (!is_dir($path)) {
-            return v('404', [], 404);
-        }
-
-        $root_dir = scandir($path);
-        $result = $this->dir($path, $root_dir);
-
-        v('index', [
-            'root' => $this->root . $child . DS,
-            'data' => $result,
-            'time' => $this->run_time(),
-        ]);
+        exit('小可爱，没有这个文件哦');
     }
 
     /**
-     * 获取目录文件
-     * @param $dir
-     * @param $data
+     * 返回排序后列表
+     * @param array $result
      * @return array
      */
-    private function dir($dir, $data)
+    public function sort($result = [])
     {
-        $result = [];
-        foreach ($data as $value) {
-            if (!in_array($value, $this->ignore)) {
-                $path = "{$dir}/{$value}";
-                $time = filectime($path);
-                $size = '-';
-                $ext = 'fa-folder';
-                $is_dir = false;
-
-                if (is_dir($path)) {
-                    $is_dir = true;  // 确定是目录
-                } else if (is_file($path)) {
-                    $ext = $this->file_type['blank'];
-                    $size = file_unit_conver(filesize($path));  // 取文件大小
-                    //$md5_file = md5_file($path);
-                    //$sha1_file = sha1_file($path);
-
-                    // 判定扩展名输出相应图标
-                    $extension = pathinfo($path, PATHINFO_EXTENSION);
-                    if (array_key_exists($extension, $this->file_type)) {
-                        $ext = $this->file_type[$extension];
-                    }
-                    unset($extension);
-                }
-
-                $result[] = [
-                    'is_dir' => $is_dir,
-                    'size'   => $size,
-                    'time'   => date($this->date_format, $time),  // 按定义格式输出时间
-                    'name'   => $value,
-                    'ext'    => $ext,
-                ];
-            }
-        }
-        unset($root_dir, $value, $dir, $is_dir, $path, $time, $size);  // 清理占用
-
-        $dirs = [];
-        $files = [];
+        $dirList = [];
+        $fileList = [];
         foreach ($result as $item) {
             if ($item['is_dir']) {
-                $dirs[$item['name']] = $item;
+                $dirList[] = $item;
             } else {
-                $files[$item['name']] = $item;
+                $fileList[] = $item;
             }
         }
-        ksort($dirs, SORT_NATURAL | SORT_FLAG_CASE);
-        ksort($files, SORT_NATURAL | SORT_FLAG_CASE);
-        $result = array_merge($dirs, $files);
-        unset($dirs, $files, $item);
 
-        return $result;
+        return array_merge($dirList, $fileList);
     }
 }

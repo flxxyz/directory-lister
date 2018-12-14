@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "9a66dbcf7960b0e69e7588f396ddbc42",
+    "content-hash": "2757fd442e3fbf72519039f4ca2532ba",
     "packages": [
         {
             "name": "aliyuncs/oss-sdk-php",
@@ -49,16 +49,16 @@
         },
         {
             "name": "flxxyz/framework",
-            "version": "dev-master",
+            "version": "dev-dev",
             "source": {
                 "type": "git",
                 "url": "https://github.com/flxxyz/framework.git",
-                "reference": "00dc82b76bdac534026267e2e8c17e2cd5a23fac"
+                "reference": "e90e18ba57c994e2717a4823dedeaa044f644aec"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/flxxyz/framework/zipball/00dc82b76bdac534026267e2e8c17e2cd5a23fac",
-                "reference": "00dc82b76bdac534026267e2e8c17e2cd5a23fac",
+                "url": "https://api.github.com/repos/flxxyz/framework/zipball/e90e18ba57c994e2717a4823dedeaa044f644aec",
+                "reference": "e90e18ba57c994e2717a4823dedeaa044f644aec",
                 "shasum": ""
             },
             "require": {
@@ -86,7 +86,7 @@
             ],
             "description": "This is a simple PHP framework",
             "homepage": "https://github.com/flxxyz/framework",
-            "time": "2018-12-13T10:36:04+00:00"
+            "time": "2018-12-14T10:04:52+00:00"
         }
     ],
     "packages-dev": [],

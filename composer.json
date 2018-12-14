@@ -13,7 +13,7 @@
   ],
   "require": {
     "php": ">=7.0",
-    "flxxyz/framework": "dev-master"
+    "flxxyz/framework": "dev-dev"
   },
   "autoload": {
     "psr-4": {
