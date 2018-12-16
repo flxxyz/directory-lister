@@ -8,15 +8,15 @@ return [
         /**
          * 应用id
          */
-        'accessKeyId' => 'LTAIdteAqKj6WO99',
+        'accessKeyId' => '',
         /**
          * 密钥
          */
-        'accessKeySecret' => 'sm47NVzImDno1ff3Aez4tr1Ux68PHI',
+        'accessKeySecret' => '',
         /**
          * 存储空间名称
          */
-        'bucket' => 'flxxyz-temp',
+        'bucket' => '',
         /**
          * 地域节点
          */

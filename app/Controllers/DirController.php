@@ -71,8 +71,6 @@ class DirController extends BaseController
                 $result = $this->oss($path);
                 break;
         }
-//        echo '<pre>';
-//        var_dump($result);exit();
 
         $data = [
             'root'    => $this->root . $path,
@@ -126,7 +124,7 @@ class DirController extends BaseController
                             $url = '?path=' . join('/', $a);
                         }
                     } else {
-                        $url = '?path=' . join('/', $a) . '/' . $value;
+                        $url = '?path=' . join('/', $a) . '/' . urlencode($value);
                     }
 
                     $dirList[] = [
@@ -142,7 +140,7 @@ class DirController extends BaseController
                         'name' => $value,
                         'size' => filesize($filename),
                         'time' => filectime($filename),
-                        'url' => '?path=' . join('/', $a) . '&name=' . $value . '&down=1',
+                        'url' => '?path=' . join('/', $a) . '&name=' . urlencode($value) . '&down=1',
                     ];
                 }
             }
@@ -175,26 +173,28 @@ class DirController extends BaseController
 
         foreach ($result as $file) {
             if (!in_array($file['name'], $this->ignore)) {
-                $ext = 'fa-folder';
+                $icon = 'fa-folder';
+                $ext = '';
                 $is_dir = false;
 
                 if ($file['type'] === 'dir') {
                     $is_dir = true;
                 } else {
                     $file['size'] = file_unit_conver($file['size']);
-                    $ext = $this->file_type['blank'];
+                    $icon = $this->file_type['blank'];
 
-                    $extension = pathinfo($file['name'], PATHINFO_EXTENSION);
-                    if (array_key_exists($extension, $this->file_type)) {
-                        $ext = $this->file_type[$extension];
+                    $ext = pathinfo($file['name'], PATHINFO_EXTENSION);
+                    if (array_key_exists($ext, $this->file_type)) {
+                        $icon = $this->file_type[$ext];
                     }
                 }
 
                 $temp[] = [
                     'is_dir' => $is_dir,
-                    'size'   => $file['size'] ?? '-',
+                    'size'   => $file['size'] ?? '',
                     'time'   => $is_dir ? '' : date($this->date_format, $file['time']),  // 按定义格式输出时间
                     'name'   => $is_dir ? str_replace('/', '', $file['name']) : $file['name'],
+                    'icon'   => $icon,
                     'ext'    => $ext,
                     'url'    => $file['url'],
                 ];
@@ -206,7 +206,7 @@ class DirController extends BaseController
 
     /**
      * 本地文件下载
-     * @param $curr_path
+     * @param $path
      * @param $name
      */
     public function download($path, $name)

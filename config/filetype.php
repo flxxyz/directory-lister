@@ -1,7 +1,7 @@
 <?php
 /**
  * 定义文件扩展名的显示图标
- * @version 0.0.1
+ * @version 0.0.3
  * @link    https://github.com/DirectoryLister/DirectoryLister/blob/master/resources/fileTypes.php
  * @remark  感谢DirectoryLister的开源
  */
